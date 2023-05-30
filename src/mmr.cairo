@@ -17,23 +17,28 @@ mod MMR {
         _last_position::read()
     }
 
-    // return the last peak
+    //  takes an array of peak hashes and "bags" them together, using a Pedersen hash function, into a single root hash.
     #[view]
     fn bag_peaks(peaks: Array<felt252>) -> felt252 {
-        let last_position = _last_position::read();
-        let mut last_peak = last_position;
-        let mut i: usize = 0;
+        // checks that the length of the array of peaks is at least 1. If it's not, the program will stop with an error.
+        assert(peaks.len() > 0, 'peak array must have at least one element');
+        //If peaks_len is exactly 1, that means we have only one peak, so we just return it. 
+        if peaks.len() == 1 {
+            return peaks[0];
+        }
+        //If peaks_len is greater than 1, we set last_peak to the first element of the peaks array.
+        let last_peak = peaks[0];
+        //Then we start a loop, which will run peaks_len - 1 times.
+        let i = 1;
         loop {
-            let position = last_position - i;
-            let peak = _root::read(position);
-            if peak == 0 {
+            if i == peaks.len() {
                 break ();
             }
-            peaks.append(peak);
-            last_peak = peak;
-            i += 1;
+            // TODO : Q. Do we need to use pedersen? or poseidon?
+            let rec = peaks[i];
+            last_peak = pedersen(last_peak, rec);
         }
-
-        peak
+        //Finally, we return the last_peak, which is the root hash of the peaks array.
+        return last_peak;
     }
 }
