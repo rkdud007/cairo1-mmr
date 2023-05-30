@@ -6,5 +6,13 @@ version = "0.1.0"
 
 [dependencies]
 # foo = { path = "vendor/foo" }
+starknet = ">=1.1.0"
 
 [[target.starknet-contract]]
+# Enable Sierra codegen.
+sierra = true
+ 
+# Enable CASM codegen.
+casm = false
+# Emit Python-powered hints in order to run compiled CASM class with legacy Cairo VM.
+casm-add-pythonic-hints = false
