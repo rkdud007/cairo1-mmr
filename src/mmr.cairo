@@ -37,8 +37,17 @@ mod MMR {
             // TODO : Q. Do we need to use pedersen? or poseidon?
             let rec = peaks[i];
             last_peak = pedersen(last_peak, rec);
+            i += 1;
         }
         //Finally, we return the last_peak, which is the root hash of the peaks array.
         return last_peak;
+    }
+
+    #[view]
+    fn compute_root(peaks: Array<felt252>, size: felt252) -> felt252 {
+        let bagged_peaks = bag_peaks(peaks);
+        let root = pedersen(bagged_peaks, size);
+
+        return root;
     }
 }
