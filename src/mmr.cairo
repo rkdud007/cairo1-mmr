@@ -47,14 +47,13 @@ mod MMR {
         //Finally, we return the last_peak, which is the root hash of the peaks array.
         return last_peak;
     }
-// #[view]
-// fn compute_root(peaks: Array<felt252>, size: felt252) -> felt252 {
-//     let bagged_peaks = bag_peaks(peaks);
-//     let root = pedersen(bagged_peaks, size);
+    #[view]
+    fn compute_root(peaks: Array<felt252>, size: felt252) -> felt252 {
+        let bagged_peaks = bag_peaks(peaks);
+        let root = pedersen(bagged_peaks, size);
 
-//     return root;
-// }
-
+        return root;
+    }
 // #[view]
 // fn height(index: felt252) -> felt252 {
 //     //It begins by checking if the index is at least 1. If it's not, an assertion error is
