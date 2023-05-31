@@ -1,8 +1,13 @@
-use array::ArrayTrait;
+use core::traits::{Into, TryInto};
+use option::OptionTrait;
+use cairo1_mmr::helpers::{bit_length, all_ones};
 
 #[contract]
 mod MMR {
+    use cairo1_mmr::helpers::{bit_length, all_ones, bitshift_left};
+    use core::traits::{Into, TryInto};
     use array::ArrayTrait;
+    use option::OptionTrait;
 
     struct Storage {
         _root: felt252,
@@ -31,7 +36,8 @@ mod MMR {
             return peak;
         }
         // //If peaks_len is greater than 1, we set last_peak to the first element of the peaks array.
-        let mut last_peak = *peaks.at(0);
+        let mut last_peak: felt252 = *peaks.at(0);
+
         // //Then we start a loop, which will run peaks_len - 1 times.
         let mut i = 1;
         let len = peaks.len();
@@ -47,6 +53,7 @@ mod MMR {
         //Finally, we return the last_peak, which is the root hash of the peaks array.
         return last_peak;
     }
+
     #[view]
     fn compute_root(peaks: Array<felt252>, size: felt252) -> felt252 {
         let bagged_peaks = bag_peaks(peaks);
@@ -54,11 +61,21 @@ mod MMR {
 
         return root;
     }
-// #[view]
-// fn height(index: felt252) -> felt252 {
-//     //It begins by checking if the index is at least 1. If it's not, an assertion error is
-//     assert(index > 0, 'index must be at least 1');
 
-//     return felt::log2(index);
-// }
+    #[view]
+    fn height(index: felt252) -> felt252 {
+        //It begins by checking if the index is at least 1. If it's not, an assertion error is
+        let index_u128: u128 = index.try_into().unwrap();
+        assert(index_u128 > 0, 'index must be at least 1');
+        let bits = bit_length(index_u128);
+        let ones = all_ones(bits);
+        if index_u128 == ones {
+            let shifted = bitshift_left(1, bits - 1);
+            let input_felt: felt252 = (index_u128 - (shifted - 1)).into();
+            let rec_height = height(input_felt);
+            return rec_height;
+        }
+        let result_felt = (bits - 1).into();
+        return result_felt;
+    }
 }
